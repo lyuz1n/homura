@@ -1,7 +1,7 @@
 name: homura
 description: A simple state manager package for Flutter using ChangeNotifier.
-version: 0.0.1
-homepage:
+version: 1.0.0
+homepage: https://github.com/lyuz1n/homura
 
 environment:
   sdk: ">=2.16.2 <3.0.0"

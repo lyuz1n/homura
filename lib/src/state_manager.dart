@@ -2,9 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 abstract class Homura {
-  static final Map<Type, ChangeNotifier> _controllers = {};
+  static final Map<Type, HomuraController> _controllers = {};
 
-  static T put<T extends ChangeNotifier>(T controller, {bool replaceOld = false}) {
+  static T put<T extends HomuraController>(T controller, {bool replaceOld = false}) {
     final Type type = controller.runtimeType;
 
     bool oldRemoved = false;
@@ -15,7 +15,7 @@ abstract class Homura {
     if (_controllers[type] == null) {
       _controllers[type] = controller;
       if (kDebugMode) {
-        print('[Homura]: $type ${oldRemoved ? 'replaced' : 'initialized'}.');
+        print('[Homura]: $type ${oldRemoved ? 'replaced' : 'created'}.');
       }
     }
     return controller;
@@ -29,10 +29,10 @@ abstract class Homura {
     }
   }
 
-  static T get<T extends ChangeNotifier>() {
+  static T get<T extends HomuraController>() {
     if (_controllers[T] != null) return _controllers[T] as T;
 
-    throw '[Homura]: Cannot find $T! Needs to initialize with "Homura.put($T());"';
+    throw '[Homura]: Cannot find $T! Needs to create with "Homura.put($T());"';
   }
 }
 
@@ -42,12 +42,24 @@ abstract class HomuraController extends ChangeNotifier {
   void delete() {
     Homura._delete(runtimeType);
   }
+
+  void onInit() {
+    WidgetsBinding.instance?.addPostFrameCallback((_) => onReady());
+  }
+
+  void onReady() {}
 }
 
-abstract class HomuraView<T extends ChangeNotifier> extends StatelessWidget {
+abstract class HomuraView<T extends HomuraController> extends StatelessWidget {
   const HomuraView({Key? key}) : super(key: key);
 
   T get controller => Homura.get<T>();
+
+  @override
+  StatelessElement createElement() {
+    controller.onInit();
+    return super.createElement();
+  }
 
   // ignore: non_constant_identifier_names
   Widget HBuilder(Widget Function() builder) {
@@ -58,7 +70,7 @@ abstract class HomuraView<T extends ChangeNotifier> extends StatelessWidget {
   }
 }
 
-class HomuraBuilder<T extends ChangeNotifier> extends HomuraView<T> {
+class HomuraBuilder<T extends HomuraController> extends HomuraView<T> {
   const HomuraBuilder({Key? key, required this.builder}) : super(key: key);
   final Widget Function() builder;
 

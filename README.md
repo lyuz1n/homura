@@ -1,3 +1,14 @@
+## Adding in pubspec.yaml
+
+TODO: This package has not yet been published on pub.dev (maybe in the future)
+
+```yaml
+# cupertino_icons: ^1.0.2
+  homura:
+    git:
+      url: https://github.com/lyuz1n/homura.git
+```
+
 ## Import
 
 ```dart

@@ -15,7 +15,7 @@ TODO: This package has not yet been published on pub.dev (maybe in the future)
 import 'package:homura/homura.dart';
 ```
 
-## Injecting permanent controllers like Provider
+## Storing permanent controllers
 
 TODO: Reccomended path `src/app/app_controllers.dart`
 

@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 abstract class Homura {
   static final Map<Type, HomuraController> _controllers = {};
 
-  static T put<T extends HomuraController>(T controller, {bool replaceOld = false}) {
+  static HomuraController put(HomuraController controller) {
     final Type type = controller.runtimeType;
 
     bool oldRemoved = false;
-    if (replaceOld && _controllers[type] != null) {
+    if (_controllers[type] != null) {
       oldRemoved = _controllers.remove(type) != null;
     }
 
@@ -18,15 +18,8 @@ abstract class Homura {
         print('[Homura]: $type ${oldRemoved ? 'replaced' : 'created'}.');
       }
     }
-    return controller;
-  }
 
-  static void _delete(Type controllerType) {
-    if (_controllers[controllerType] != null && _controllers.remove(controllerType) != null) {
-      if (kDebugMode) {
-        print('[Homura]: $controllerType deleted.');
-      }
-    }
+    return controller;
   }
 
   static T get<T extends HomuraController>() {
@@ -34,32 +27,31 @@ abstract class Homura {
 
     throw '[Homura]: Cannot find $T! Needs to create with "Homura.put($T());"';
   }
+
+  static void _delete(Type controllerType) {
+    if (_controllers[controllerType] != null &&
+        _controllers.remove(controllerType) != null) {
+      if (kDebugMode) {
+        print('[Homura]: $controllerType deleted.');
+      }
+    }
+  }
 }
 
 abstract class HomuraController extends ChangeNotifier {
   void update() => notifyListeners();
 
-  void delete() {
+  @override
+  void dispose() {
+    super.dispose();
     Homura._delete(runtimeType);
   }
-
-  void onInit() {
-    WidgetsBinding.instance?.addPostFrameCallback((_) => onReady());
-  }
-
-  void onReady() {}
 }
 
 abstract class HomuraView<T extends HomuraController> extends StatelessWidget {
   const HomuraView({Key? key}) : super(key: key);
 
   T get controller => Homura.get<T>();
-
-  @override
-  StatelessElement createElement() {
-    controller.onInit();
-    return super.createElement();
-  }
 
   // ignore: non_constant_identifier_names
   Widget HBuilder(Widget Function() builder) {
